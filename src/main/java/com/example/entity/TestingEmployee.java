@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,9 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @Entity
-@NoArgsConstructor
+@Data
 public class TestingEmployee {
 
 
@@ -19,6 +18,7 @@ public class TestingEmployee {
 	private Long id;
 
 	private String name;
-	private String employee;
+	private String department;
+
 
 }
