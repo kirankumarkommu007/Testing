@@ -29,7 +29,7 @@ public class ProductController {
 		return ResponseEntity.ok("Hello, World!");
 	}
 
-	@PostMapping
+	@PostMapping("/add")
 	public Product createProduct(@RequestBody Product product) {
 		return productService.createProduct(product);
 	}
