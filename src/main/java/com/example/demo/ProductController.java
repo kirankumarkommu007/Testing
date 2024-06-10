@@ -26,6 +26,11 @@ public class ProductController {
 		return product;
 	}
 
+	@GetMapping("/hello")
+	public ResponseEntity<String> sayHello() {
+		return ResponseEntity.ok("Hello, World!");
+	}
+
 	@PostMapping
 	public Product createProduct(@RequestBody Product product) {
 		return productService.createProduct(product);
@@ -38,8 +43,8 @@ public class ProductController {
 	}
 
 	@DeleteMapping("/{id}")
-	 void deleteProduct(@PathVariable Long id) {
-		 productService.deleteProduct(id);
-	
+	void deleteProduct(@PathVariable Long id) {
+		productService.deleteProduct(id);
+
 	}
 }
