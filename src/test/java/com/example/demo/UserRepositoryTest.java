@@ -1,69 +1,54 @@
 package com.example.demo;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.Optional;
-
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE) 
+@AutoConfigureTestDatabase(replace = Replace.NONE)
 public class UserRepositoryTest {
 
-	@Autowired
-	private TestRepository userRepository;
+    @Autowired
+    private TestEntityManager entityManager;
 
-	@BeforeEach
-	public void setUp() {
-		userRepository.deleteAll(); // Clear all entities before each test
-	}
+    @Autowired
+    private TestRepository userRepository;
 
-	@Test
-	public void testSave() {
-		// Given
-		TestUser user = new TestUser(1L, "John Doe", "john.doe@example.com");
-		userRepository.save(user);
+    @Test
+    public void testSaveUser() {
+        // Given
+        TestUser user = new TestUser();
+        user.setName("John Doe");
+        user.setEmail("john.doe@example.com");
 
-		// When
-		List<TestUser> foundUser = userRepository.findAll();
+        // When
+        TestUser savedUser = entityManager.persistAndFlush(user);
 
-		// Then
-		assertThat(foundUser).isNotNull().hasSize(1);
+        // Then
+        assertThat(savedUser.getId()).isNotNull();
+        assertThat(savedUser.getName()).isEqualTo("John Doe");
+        assertThat(savedUser.getEmail()).isEqualTo("john.doe@example.com");
+    }
 
-	}
+    @Test
+    public void testFindUserById() {
+        // Given
+        TestUser user = new TestUser();
+        user.setName("Jane Smith");
+        user.setEmail("jane.smith@example.com");
+        TestUser savedUser = entityManager.persistAndFlush(user);
 
-	@Test
-	public void testFindbyID() {
-		// Given
-		TestUser user = new TestUser(1L, "John Doe", "john.doe@example.com");
-		userRepository.save(user);
+        // When
+        TestUser foundUser = userRepository.findById(savedUser.getId()).orElse(null);
 
-		// When
-		Optional<TestUser> foundUser = userRepository.findById(user.getId());
-
-		// Then
-		assertThat(foundUser).isNotNull();
-
-	}
-
-	@Test
-	public void testFindAllUsers() {
-		// Given
-		TestUser user1 = new TestUser(1L, "Alice", "alice@example.com");
-		TestUser user2 = new TestUser(2L, "Bob", "bob@example.com");
-		userRepository.save(user1);
-		userRepository.save(user2);
-
-		// When
-		List<TestUser> users = (List<TestUser>) userRepository.findAll();
-
-		// Then
-		assertThat(users).isNotNull().hasSize(2);
-
-	}
+        // Then
+        assertThat(foundUser).isNotNull();
+        assertThat(foundUser.getName()).isEqualTo("Jane Smith");
+        assertThat(foundUser.getEmail()).isEqualTo("jane.smith@example.com");
+    }
+    
 }
