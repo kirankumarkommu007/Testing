@@ -5,50 +5,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.jdbc.Sql;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 public class UserRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
     private TestRepository userRepository;
 
     @Test
-    public void testSaveUser() {
-        // Given
-        TestUser user = new TestUser();
-        user.setName("John Doe");
-        user.setEmail("john.doe@example.com");
-
+    @Sql(scripts = "/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void testFindAllUsers() {
         // When
-        TestUser savedUser = entityManager.persistAndFlush(user);
+        List<TestUser> users = userRepository.findAll();
 
         // Then
-        assertThat(savedUser.getId()).isNotNull();
-        assertThat(savedUser.getName()).isEqualTo("John Doe");
-        assertThat(savedUser.getEmail()).isEqualTo("john.doe@example.com");
+        assertThat(users).isNotNull().hasSize(2);
+        assertThat(users.get(0).getName()).isEqualTo("Alice");
+        assertThat(users.get(1).getName()).isEqualTo("Bob");
     }
-
-    @Test
-    public void testFindUserById() {
-        // Given
-        TestUser user = new TestUser();
-        user.setName("Jane Smith");
-        user.setEmail("jane.smith@example.com");
-        TestUser savedUser = entityManager.persistAndFlush(user);
-
-        // When
-        TestUser foundUser = userRepository.findById(savedUser.getId()).orElse(null);
-
-        // Then
-        assertThat(foundUser).isNotNull();
-        assertThat(foundUser.getName()).isEqualTo("Jane Smith");
-        assertThat(foundUser.getEmail()).isEqualTo("jane.smith@example.com");
-    }
-    
 }
